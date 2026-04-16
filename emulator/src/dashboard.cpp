@@ -149,18 +149,19 @@ void Dashboard::draw() {
 
     printf(CURSOR_HOME);
 
-    drawStatePane(1, 1, left_w);
+    drawStatePane(1, 1, left_w, term_h - 1);
     drawLogPane(1, left_w + 2, right_w, term_h - 2);
     drawStatusBar(term_h, term_w);
 
     fflush(stdout);
 }
 
-void Dashboard::drawStatePane(int startRow, int startCol, int width) {
+void Dashboard::drawStatePane(int startRow, int startCol, int width, int maxRow) {
     int row = startRow;
     /* Helper macro for printing a line at the current row.
-     * Can't use variadic lambda with va_start, so use a macro. */
-    #define LINE(...) do { moveTo(row++, startCol); clearToEol(); printf(__VA_ARGS__); } while(0)
+     * Can't use variadic lambda with va_start, so use a macro.
+     * Stops drawing if we've reached the status bar row. */
+    #define LINE(...) do { if (row > maxRow) break; moveTo(row++, startCol); clearToEol(); printf(__VA_ARGS__); } while(0)
 
     double rpm = physics.getSpindleRPM();
     double target = physics.getTargetRPM();
@@ -226,6 +227,40 @@ void Dashboard::drawStatePane(int startRow, int startCol, int width) {
              i, scale_names[i],
              shared.scales[i].syncRatioNum, shared.scales[i].syncRatioDen,
              en, shared.scales[i].position);
+    }
+
+    LINE("%s", "");
+
+    /* Assisted Threading registers */
+    LINE(BOLD " ASSISTED THREADING" RESET_ATTR);
+    {
+        auto &at = shared.assistedThreadingData;
+        const char *active_str = at.threadPhaseActive ? FG_GREEN "LATCHED" RESET_ATTR : DIM "idle" RESET_ATTR;
+        LINE(" req:%d rst:%d ena:%d %s",
+             at.threadRequest, at.threadReset, at.threadEnabled, active_str);
+        LINE(" scale:%d  tol:%d  CPR:%u",
+             at.spindleScaleIndex, at.spindlePhaseTolerance,
+             at.spindleCountsPerRev);
+        LINE(" remain:%d  start:%u",
+             at.threadRemainingSteps, at.threadStartSteps);
+        LINE(" phaseRef:%d  curPhase:%d",
+             at.threadPhaseRef, at.currentThreadPhase);
+    }
+
+    LINE("%s", "");
+
+    /* ELS Stop registers */
+    LINE(BOLD " ELS STOP" RESET_ATTR);
+    {
+        auto &es = shared.elsStop;
+        const char *ena_str = es.enable ? FG_GREEN "ON" RESET_ATTR : DIM "off" RESET_ATTR;
+        const char *act_str = es.active ? FG_RED "STOPPED" RESET_ATTR : DIM "idle" RESET_ATTR;
+        LINE(" enable:%s  scale:%d  %s",
+             ena_str, es.scaleIndex, act_str);
+        LINE(" stopPos:%d  dir:%d",
+             es.stopPosition, es.stopDirection);
+        LINE(" accumErr:%d  pitch:%.1f",
+             es.accumulatedError, (double)es.threadPitchSteps);
     }
 
     LINE("%s", "");

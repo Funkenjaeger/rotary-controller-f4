@@ -67,7 +67,7 @@ private:
 
     /* Rendering */
     void draw();
-    void drawStatePane(int startRow, int startCol, int width);
+    void drawStatePane(int startRow, int startCol, int width, int maxRow);
     void drawLogPane(int startRow, int startCol, int width, int height);
     void drawStatusBar(int row, int width);
 
