@@ -1,5 +1,9 @@
 # Rotary Controller (F4)
 
+This fork has been deprecated.  In order to focus on a lathe-first feature set, this project was hard-forked to the [Reflex firmware project](https://github.com/Funkenjaeger/reflex-fw).  All features which were in work here (electronic stop for turning and threading up to a shoulder, automatic phase re-sync to thread pitch between passes, electronic retract, and a firmware/hardware emulator for host-side testing) have now been realized in Reflex.  The companion UI is [Reflex UI](https://github.com/Funkenjaeger/reflex-ui).
+
+Everything below describes this repository as it stood at the fork point, and is retained for reference.
+
 [![Discord](https://img.shields.io/discord/1386014070632878100?style=social)](https://discord.gg/EDtgj7Yayr) [![Shop at Provvedo](https://img.shields.io/badge/Shop-Provvedo-blue?logo=shopify&style=flat-square)](https://www.provvedo.com/shop)
 
 
